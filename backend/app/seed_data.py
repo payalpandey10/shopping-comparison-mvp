@@ -83,13 +83,27 @@ huda_nykaa_diff_qty = RawListing(
     image_url="",
     matched_product_id=None,  # Deliberately unmatched -- different quantity!
 )
-db.add_all([huda_myntra, huda_sephora, huda_nykaa_diff_qty])
+huda_ajio_should_match = RawListing(
+    retailer_name="AJIO",
+    product_url="https://ajio.com/example-huda-mascara",
+    raw_title="HB Lash Sensational Mascara Waterproof - 7.6 ml",
+    raw_price=2149,
+    raw_quantity_text="7.6 ml",
+    seller_name="AJIO Beauty",
+    image_url="",
+    matched_product_id=None,  # Deliberately left unmatched -- SAME quantity as
+                               # the 7.6ml product, but worded differently.
+                               # This is the "should match" test case.
+)
+
+db.add_all([huda_myntra, huda_sephora, huda_nykaa_diff_qty, huda_ajio_should_match])
 db.commit()
-for l in [huda_myntra, huda_sephora, huda_nykaa_diff_qty]:
+for l in [huda_myntra, huda_sephora, huda_nykaa_diff_qty, huda_ajio_should_match]:
     db.refresh(l)
 add_price_point(huda_myntra, 2199)
 add_price_point(huda_sephora, 2299)
 add_price_point(huda_nykaa_diff_qty, 1899)
+add_price_point(huda_ajio_should_match, 2149)
 
 
 # =========================================================

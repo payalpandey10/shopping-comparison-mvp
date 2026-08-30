@@ -2,9 +2,6 @@
 routes/products.py
 -------------------
 API endpoints related to searching and comparing matched products.
-
-This is what your React frontend will actually call, e.g.:
-  GET /products/search?q=mascara
 """
 
 from fastapi import APIRouter, Depends, Query
@@ -19,13 +16,24 @@ from ..schemas import MatchedProductOut
 router = APIRouter(prefix="/products", tags=["products"])
 
 
+def attach_price_per_unit(product: MatchedProduct) -> MatchedProduct:
+    """
+    Calculates price-per-unit for every listing belonging to this
+    product, and attaches it as a temporary attribute so the schema
+    can pick it up in the response.
+    """
+    for listing in product.listings:
+        if listing.raw_price is not None and product.quantity_value:
+            listing.price_per_unit = round(
+                listing.raw_price / product.quantity_value, 2
+            )
+        else:
+            listing.price_per_unit = None
+    return product
+
+
 @router.get("/search", response_model=List[MatchedProductOut])
 def search_products(q: str = Query(..., min_length=1), db: Session = Depends(get_db)):
-    """
-    Search matched_product by brand or product_name.
-    This searches our OWN catalog (not live retailer sites) --
-    remember: we only find what's already been crawled + matched.
-    """
     results = (
         db.query(MatchedProduct)
         .filter(
@@ -36,13 +44,14 @@ def search_products(q: str = Query(..., min_length=1), db: Session = Depends(get
         )
         .all()
     )
+    for product in results:
+        attach_price_per_unit(product)
     return results
 
 
 @router.get("/{product_id}", response_model=MatchedProductOut)
 def get_product(product_id: int, db: Session = Depends(get_db)):
-    """
-    Get one matched product with all its raw listings --
-    this is what powers the Comparison page.
-    """
-    return db.query(MatchedProduct).filter(MatchedProduct.id == product_id).first()
+    product = db.query(MatchedProduct).filter(MatchedProduct.id == product_id).first()
+    if product:
+        attach_price_per_unit(product)
+    return product

@@ -25,6 +25,7 @@ class RawListingOut(BaseModel):
     raw_quantity_text: Optional[str]
     seller_name: Optional[str]
     image_url: Optional[str]
+    price_per_unit: Optional[Decimal] = None
 
     class Config:
         orm_mode = True

@@ -35,6 +35,11 @@ function Compare() {
         >
           <strong>{listing.retailer_name}</strong>
           <div>Price: ₹{listing.raw_price}</div>
+          {listing.price_per_unit && (
+            <div style={{ color: '#2a7a2a', fontWeight: 600 }}>
+              ₹{listing.price_per_unit} / {product.quantity_unit}
+            </div>
+          )}
           <div style={{ fontSize: 13, color: '#999' }}>Seller: {listing.seller_name}</div>
           <a href={listing.product_url} target="_blank" rel="noreferrer">
             View on {listing.retailer_name}

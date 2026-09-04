@@ -12,51 +12,92 @@ Run with (from backend/ folder, venv active):
     python -m app.matching.apply_matches
 
 NOTE: unlike run_matcher.py (which only prints, "dry run"), this
-script actually changes your database.
+script actually changes your database. Run run_matcher.py first if
+you want to preview decisions before committing to them.
 """
 
-from ..database import SessionLocal
 from ..models import RawListing, MatchedProduct
 from .matcher import find_matching_product
 from .quantity_parser import parse_quantity
+from .brand_extractor import guess_brand
 
-db = SessionLocal()
 
-unmatched_listings = db.query(RawListing).filter(
-    RawListing.matched_product_id.is_(None)
-).all()
+def run_matching(db):
+    """
+    Runs matching against all unmatched raw_listings using the given
+    database session, and returns a summary of what happened.
 
-print(f"Found {len(unmatched_listings)} unmatched listing(s). Applying matcher...\n")
+    This function is shared by:
+      - apply_matches.py (manual script, run from terminal)
+      - the /admin/run-matching API endpoint (automated trigger)
+    Keeping the logic here in ONE place means both callers always
+    behave identically -- no risk of the script and the API drifting
+    apart over time.
+    """
+    unmatched_listings = db.query(RawListing).filter(
+        RawListing.matched_product_id.is_(None)
+    ).all()
 
-for listing in unmatched_listings:
-    all_products = db.query(MatchedProduct).all()
-    result = find_matching_product(listing, all_products)
+    matched_count = 0
+    new_product_count = 0
+    results = []
 
-    if result:
-        listing.matched_product_id = result.id
-        db.commit()
-        print(f"MATCHED  \"{listing.raw_title}\" -> {result.brand} - {result.product_name}")
+    for listing in unmatched_listings:
+        all_products = db.query(MatchedProduct).all()
+        result = find_matching_product(listing, all_products)
 
-    else:
-        value, unit = parse_quantity(listing.raw_quantity_text)
+        if result:
+            listing.matched_product_id = result.id
+            db.commit()
+            matched_count += 1
+            results.append({
+                "listing_title": listing.raw_title,
+                "action": "matched",
+                "matched_product": f"{result.brand} - {result.product_name}",
+            })
 
-        new_product = MatchedProduct(
-            brand="Unknown",
-            product_name=listing.raw_title,
-            shade_or_color=None,
-            quantity_value=value,
-            quantity_unit=unit,
-            pack_count=1,
-            category=None,
-        )
-        db.add(new_product)
-        db.commit()
-        db.refresh(new_product)
+        else:
+            value, unit = parse_quantity(listing.raw_quantity_text)
+            guessed_brand = guess_brand(listing.raw_title)
 
-        listing.matched_product_id = new_product.id
-        db.commit()
-        print(f"NEW PRODUCT created for \"{listing.raw_title}\" -> matched_product id {new_product.id}")
+            new_product = MatchedProduct(
+                brand=guessed_brand,
+                product_name=listing.raw_title,
+                shade_or_color=None,
+                quantity_value=value,
+                quantity_unit=unit,
+                pack_count=1,
+                category=None,
+            )
+            db.add(new_product)
+            db.commit()
+            db.refresh(new_product)
 
-print("\nDone.")
+            listing.matched_product_id = new_product.id
+            db.commit()
+            new_product_count += 1
+            results.append({
+                "listing_title": listing.raw_title,
+                "action": "new_product_created",
+                "matched_product_id": new_product.id,
+            })
 
-db.close()
+    return {
+        "total_processed": len(unmatched_listings),
+        "matched_to_existing": matched_count,
+        "new_products_created": new_product_count,
+        "details": results,
+    }
+
+
+if __name__ == "__main__":
+    from ..database import SessionLocal
+
+    db = SessionLocal()
+    summary = run_matching(db)
+    print(f"Processed {summary['total_processed']} unmatched listing(s).")
+    print(f"  Matched to existing products: {summary['matched_to_existing']}")
+    print(f"  New products created: {summary['new_products_created']}\n")
+    for item in summary["details"]:
+        print(item)
+    db.close()

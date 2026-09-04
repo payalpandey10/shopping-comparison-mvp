@@ -10,15 +10,9 @@ Matching rule (all must be true to count as a match):
     3. Product name is "similar enough" (fuzzy)              -- FLEXIBLE
 """
 
-from difflib import SequenceMatcher
 from .quantity_parser import parse_quantity
 from .brand_normalizer import normalize_brand, BRAND_ALIASES
-
-NAME_SIMILARITY_THRESHOLD = 0.6
-
-
-def name_similarity(name_a: str, name_b: str) -> float:
-    return SequenceMatcher(None, name_a.lower(), name_b.lower()).ratio()
+from .text_similarity import name_similarity, NAME_SIMILARITY_THRESHOLD
 
 
 def expand_aliases_in_text(text: str) -> str:

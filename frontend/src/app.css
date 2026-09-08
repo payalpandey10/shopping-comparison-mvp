@@ -1,0 +1,284 @@
+/* ============================================================
+   Design system: "Price Ledger"
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+:root {
+  --paper: #FAF7F2;
+  --surface: #FFFFFF;
+  --ink: #1C2321;
+  --ink-soft: #5B6560;
+  --line: #E4DFD4;
+  --brand: #0F6B5C;
+  --brand-soft: #E7F1EE;
+  --accent: #E8A33D;
+  --accent-soft: #FBF0DC;
+  --danger: #B3453A;
+
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'IBM Plex Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--brand);
+}
+
+.page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+.masthead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.masthead h1 {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.masthead .tagline {
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.search-form {
+  display: flex;
+  gap: 0;
+  margin-bottom: 36px;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.search-form input {
+  flex: 1;
+  border: none;
+  padding: 14px 16px;
+  font-size: 16px;
+  font-family: var(--font-body);
+  background: transparent;
+  color: var(--ink);
+  outline: none;
+}
+
+.search-form input::placeholder {
+  color: #A6A199;
+}
+
+.search-form button {
+  border: none;
+  border-left: 2px solid var(--ink);
+  background: var(--brand);
+  color: white;
+  padding: 14px 22px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.search-form button:hover {
+  background: #0C5346;
+}
+
+.status-line {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-bottom: 16px;
+}
+
+.result-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.result-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 4px;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  transition: background 100ms ease;
+}
+
+.result-row:hover {
+  background: var(--brand-soft);
+}
+
+.result-row:first-child {
+  border-top: 1px solid var(--line);
+}
+
+.result-main .brand {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.result-main .product {
+  color: var(--ink);
+  font-size: 15px;
+}
+
+.result-meta {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-top: 3px;
+}
+
+.result-count {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  text-align: right;
+}
+
+.empty-state {
+  padding: 40px 4px;
+  color: var(--ink-soft);
+  font-size: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.back-link {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  text-decoration: none;
+  margin-bottom: 20px;
+}
+
+.back-link:hover {
+  color: var(--ink);
+}
+
+.product-header h1 {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0 0 8px;
+}
+
+.product-header .product-meta {
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin-bottom: 32px;
+}
+
+.section-label {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+
+.listing-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 16px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  margin-bottom: 10px;
+  background: var(--surface);
+}
+
+.listing-row.best-deal {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  position: relative;
+}
+
+.listing-row.best-deal::before {
+  content: "Best value here";
+  position: absolute;
+  top: -10px;
+  left: 14px;
+  background: var(--accent);
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+
+.listing-retailer {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  min-width: 100px;
+}
+
+.listing-seller {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+
+.listing-prices {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.listing-price {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 17px;
+}
+
+.listing-price-per-unit {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--brand);
+  margin-top: 2px;
+}
+
+.listing-link {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--brand);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.listing-link:hover {
+  text-decoration: underline;
+}
+
+.loading-text {
+  padding: 60px 4px;
+  color: var(--ink-soft);
+  font-size: 14px;
+}
